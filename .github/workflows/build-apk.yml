@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -21,23 +20,19 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Find Gradle wrapper
-        run: |
-          echo "Searching gradlew..."
-          find . -name gradlew -type f
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.7
 
       - name: Build debug APK
         run: |
-          GRADLEW=$(find . -name gradlew -type f | head -1)
-
-          if [ -z "$GRADLEW" ]; then
-            echo "Gradle wrapper not found"
-            exit 1
+          if [ -f ./gradlew ]; then
+            chmod +x ./gradlew
+            ./gradlew assembleDebug
+          else
+            gradle assembleDebug
           fi
-
-          chmod +x "$GRADLEW"
-          cd "$(dirname "$GRADLEW")"
-          ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
