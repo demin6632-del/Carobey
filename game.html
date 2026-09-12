@@ -1,12 +1,13 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>Хроники Бездны: Башня</title><style>body{margin:0;background:#080b14;color:#eee;font-family:Arial}#app{max-width:520px;margin:auto;padding:15px}.card{background:#111827;border:1px solid #334155;border-radius:14px;padding:15px;margin:10px 0}button{width:100%;padding:14px;margin:5px 0;background:#312e81;color:white;border:1px solid #6366f1;border-radius:10px;font-size:16px}.hp{color:#fb7185}.log{font-size:14px}</style></head><body><div id="app"></div><script>
-let s=JSON.parse(localStorage.towerSave||'null')||{hero:null,floor:1,room:0,hp:100,enemy:null,log:[]};
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>Хроники Бездны: Башня</title><style>body{margin:0;background:#080b14;color:#eee;font-family:Arial}#app{max-width:520px;margin:auto;padding:15px}.card{background:#111827;border:1px solid #334155;border-radius:14px;padding:15px;margin:10px 0}button{width:100%;padding:14px;margin:5px 0;background:#312e81;color:white;border-radius:10px;font-size:16px}.hp{color:#fb7185}.log{font-size:13px;color:#aaa}</style></head><body><div id="app"></div><script>
+let s=JSON.parse(localStorage.towerSave||'null')||{hero:null,floor:1,room:0,hp:100,max:100,enemy:null,ehp:0,gold:0,log:[]};
 function save(){localStorage.towerSave=JSON.stringify(s)}
-function app(){let a=document.getElementById('app');a.innerHTML=`<h1>Хроники Бездны: Башня</h1><div class=card>Этаж: ${s.floor}<br>Комната: ${s.room}<br>Герой: ${s.hero||'нет'}<br>HP: <span class=hp>${s.hp}</span></div>`+view();}
+function app(){document.getElementById('app').innerHTML=`<h1>Хроники Бездны: Башня</h1><div class=card>Герой: ${s.hero||'нет'}<br>Этаж: ${s.floor}<br>Комната: ${s.room}/5<br>HP: <span class=hp>${s.hp}/${s.max}</span><br>Золото: ${s.gold}</div>`+view()+`<div class=card class=log>${s.log.slice(-5).join('<br>')}</div>`}
 function btn(t,f){return `<button onclick="${f}">${t}</button>`}
-function view(){if(!s.hero)return `<div class=card>Выбери героя</div>`+btn('Воин','start(\'Воин\')')+btn('Маг','start(\'Маг\')');if(s.enemy)return `<div class=card>Враг: ${s.enemy}<br>HP врага: ${s.ehp}</div>`+btn('Атаковать','attack()');return `<div class=card>Ты исследуешь этаж башни. Найди лестницу.</div>`+btn('Исследовать комнату','explore()')+btn('Сохранить','save()');}
-function start(x){s.hero=x;save();app()}
-function explore(){s.room++;if(Math.random()<.6){s.enemy=['Тень','Гоблин','Страж башни'][Math.floor(Math.random()*3)];s.ehp=30+s.floor*5}else if(s.room>=5){s.floor++;s.room=0;s.log.push('Найдена лестница. Подъём выше.')}save();app()}
-function attack(){s.ehp-=20;if(s.ehp<=0){s.enemy=null;s.hp=Math.min(100,s.hp+10)}else{s.hp-=10}save();app()}
+function view(){if(!s.hero)return `<div class=card>Выбери героя</div>`+btn('Воин','start(\'Воин\')')+btn('Маг','start(\'Маг\')');if(s.enemy)return `<div class=card>Враг: ${s.enemy}<br>HP врага: ${s.ehp}</div>`+btn('Атаковать','attack()')+btn('Навык','skill()');return `<div class=card>Исследуй комнаты башни и найди лестницу.</div>`+btn('Исследовать','explore()')+btn('Сохранить','save()');}
+function start(x){s.hero=x;s.log.push('Ты вошёл в башню.');save();app()}
+function explore(){s.room++;let r=Math.random();if(r<.55){s.enemy=['Тень','Гоблин','Страж башни','Проклятый рыцарь'][Math.floor(Math.random()*4)];s.ehp=25+s.floor*10;s.log.push('Появился враг: '+s.enemy)}else if(r<.8){s.gold+=10;s.log.push('Найден сундук: +10 золота')}else{s.hp=Math.min(s.max,s.hp+15);s.log.push('Найдован источник восстановления')}if(s.room>=5&&!s.enemy){s.floor++;s.room=0;s.log.push('Найдена лестница. Подъём на этаж '+s.floor)}save();app()}
+function attack(){s.ehp-=20;if(s.ehp<=0){s.gold+=15;s.log.push('Враг побеждён');s.enemy=null}else{s.hp-=10;s.log.push('Враг атакует')}if(s.hp<=0){s.log.push('Поражение. Возвращение на 1 этаж');s.floor=1;s.room=0;s.hp=s.max}s.save;save();app()}
+function skill(){s.ehp-=35;s.log.push('Мощный удар');if(s.ehp<=0)s.enemy=null;save();app()}
 app();
 </script></body></html>
