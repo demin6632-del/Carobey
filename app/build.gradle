@@ -19,8 +19,9 @@ android {
 // WebView загружает её из android_asset/game.html
 
 tasks.register('copyGameHtml', Copy) {
-    from '../game.html'
-    into 'src/main/assets'
+    def sourceGame = file("${rootDir}/game.html")
+    from sourceGame
+    into file('src/main/assets')
 }
 
 preBuild.dependsOn copyGameHtml
