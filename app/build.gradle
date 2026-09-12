@@ -14,3 +14,13 @@ android {
         versionName '1.0'
     }
 }
+
+// Копируем существующую игру без изменения game.html в Android assets
+// WebView загружает её из android_asset/game.html
+
+tasks.register('copyGameHtml', Copy) {
+    from '../game.html'
+    into 'src/main/assets'
+}
+
+preBuild.dependsOn copyGameHtml
