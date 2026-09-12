@@ -17,11 +17,13 @@ android {
 
 // Копируем существующую игру без изменения game.html в Android assets
 // WebView загружает её из android_asset/game.html
-
 tasks.register('copyGameHtml', Copy) {
     def sourceGame = file("${rootDir}/game.html")
     from sourceGame
     into file('src/main/assets')
+    onlyIf {
+        sourceGame.exists()
+    }
 }
 
 preBuild.dependsOn copyGameHtml
