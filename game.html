@@ -1,9 +1,10 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Хроники Бездны: Башня</title><style>body{background:#070b12;color:#eee;font-family:Arial;margin:0}#app{max-width:520px;margin:auto;padding:15px}.card{background:#111827;border:1px solid #374151;border-radius:12px;padding:15px;margin:10px 0}button{width:100%;padding:14px;margin:5px;background:#312e81;color:white;border:0;border-radius:10px}</style></head><body><div id="app"></div><script>
-let s=JSON.parse(localStorage.towerSave||'null')||{hero:null,floor:1,room:0,hp:100,stairs:false,log:''};
+let s=JSON.parse(localStorage.towerSave||'null')||{hero:null,floor:1,room:0,hp:100,max:100,atk:20,enemy:null,ehp:0,stairs:false,log:''};
 function save(){localStorage.towerSave=JSON.stringify(s)}function btn(t,f){return `<button onclick="${f}">${t}</button>`}
-function render(){app.innerHTML=`<h1>Хроники Бездны: Башня</h1><div class=card>Герой: ${s.hero||'нет'}<br>Этаж: ${s.floor}<br>Комната: ${s.room}/5<br>HP: ${s.hp}<br>${s.log}</div>`+view()}
-function view(){if(!s.hero)return btn('Начать восхождение','start()');if(s.hp<=0)return '<div class=card>Герой погиб</div>'+btn('Начать заново','reset()');if(s.stairs)return btn('Подняться на следующий этаж','nextFloor()');return btn('Исследовать комнату','explore()')}
+function render(){app.innerHTML=`<h1>Хроники Бездны: Башня</h1><div class=card>Герой: ${s.hero||'нет'}<br>Этаж: ${s.floor}<br>Комната: ${s.room}/5<br>HP: ${s.hp}/${s.max}<br>⚔ ${s.atk}<br>${s.enemy?'Враг: '+s.enemy+' HP: '+s.ehp:''}<br>${s.log}</div>`+view()}
+function view(){if(!s.hero)return btn('Начать восхождение','start()');if(s.hp<=0)return '<div class=card>Герой погиб</div>'+btn('Начать заново','reset()');if(s.enemy)return btn('Атаковать','attack()');if(s.stairs)return btn('Подняться на следующий этаж','nextFloor()');return btn('Исследовать комнату','explore()')}
 function start(){s.hero='Искатель';save();render()}
-function explore(){s.room++;s.log='Комната исследована';if(Math.random()<0.4){s.stairs=true;s.log='Найдена лестница на следующий этаж'}else{s.hp-=10;s.log='В темноте произошло столкновение'}save();render()}
+function explore(){s.room++;let r=Math.random();if(r<0.35){s.stairs=true;s.log='Найдена лестница на следующий этаж'}else if(r<0.75){s.enemy='Тварь Бездны';s.ehp=40+s.floor*15;s.log='Начался бой'}else{s.log='Пустая комната'}save();render()}
+function attack(){s.ehp-=s.atk;if(s.ehp<=0){s.enemy=null;s.log='Враг побежден';s.stairs=s.room>=5}else{s.hp-=10;s.log='Враг атакует'}save();render()}
 function nextFloor(){s.floor++;s.room=0;s.stairs=false;s.log='Новый этаж башни';save();render()}
 function reset(){localStorage.removeItem('towerSave');location.reload()}render();</script></body></html>
